@@ -1,1 +1,1 @@
-# SQL_CaseStudies_MatinShaikh
+# SQL_CaseStudies
