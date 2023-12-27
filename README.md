@@ -1,4 +1,4 @@
-#SQL Case Studies Repository
+
 Welcome to the SQL_CaseStudies repository! This collection houses comprehensive case studies focusing on diverse business scenarios, each analyzed using SQL queries.
 
 Included Case Studies:
