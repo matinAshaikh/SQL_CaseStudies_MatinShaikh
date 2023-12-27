@@ -1,4 +1,5 @@
 Welcome to SQL_CaseStudies Repository! 📊
+
 This repository hosts an array of comprehensive case studies examining various business scenarios using SQL queries.
 
 Included Case Studies: 📚
