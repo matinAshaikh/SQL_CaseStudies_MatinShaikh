@@ -228,7 +228,6 @@ Developing customer segments based on transactional data allowed the implementat
 Recommendations:
 Tailored Marketing Strategies: Based on the segmentation analysis, create personalized marketing campaigns for each customer segment. This strategy would help in targeted promotions, resulting in increased engagement and conversions.
 Retention Programs: Develop and implement customer retention initiatives, particularly targeting high-value segments. Special offers, loyalty rewards, or personalized communication can be instrumental in retaining these valuable customers.
-Geographical Targeting: Leverage insights from geographical segmentation to focus on regions displaying high customer activity. Localized marketing efforts and region-specific promotions can drive sales growth.
 Product Affinity Strategies: Explore cross-selling opportunities by identifying products frequently purchased together. Bundling or recommendations based on product affinities can increase average order values.
 Continuous Monitoring and Analysis: Regularly review and update customer segments. Customer behavior evolves, so it's crucial to continually refine segments to ensure marketing strategies stay aligned with changing trends.
 
