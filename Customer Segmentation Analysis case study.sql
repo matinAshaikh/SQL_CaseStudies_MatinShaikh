@@ -187,9 +187,10 @@ WHERE unique_categories > 1;
 
 --Total Orders and Percentage of Orders per Category:
 WITH category_orders AS (
-    SELECT category_id, COUNT(order_id) AS total_orders
-    FROM orders_table
-    GROUP BY category_id
+    SELECT p.category_id, COUNT(o.order_id) AS total_orders
+    FROM orders_table o
+    JOIN products_table p ON o.product_id = p.product_id
+    GROUP BY p.category_id
 )
 SELECT c.category_name, co.total_orders, 
        ROUND((co.total_orders * 100.0) / SUM(co.total_orders) OVER (), 2) AS order_percentage
