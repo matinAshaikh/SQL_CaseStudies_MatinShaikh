@@ -49,9 +49,10 @@ Recognize and reward top performers based on key performance indicators (KPIs).
 ***************************************************************************************************/
 
 --Performance Metrics Analysis:
-SELECT employee_id, AVG(productivity_score) AS avg_productivity
+SELECT employee_id, ROUND(AVG(productivity_score),2) AS avg_productivity
 FROM performance_metrics
-GROUP BY employee_id;
+GROUP BY employee_id
+ORDER BY 1;
 /*
 Justification: Measures the average productivity score for each employee to evaluate individual performance.
 Purpose: Identifies employees with the highest average productivity scores.
@@ -60,10 +61,11 @@ Findings: Presents the average productivity score achieved by each employee.*/
 
 
 --Department-wise Performance Comparison:
-SELECT department, AVG(productivity_score) AS avg_productivity
+SELECT e.department_id, AVG(pm.productivity_score) AS avg_productivity
 FROM employees e
 JOIN performance_metrics pm ON e.employee_id = pm.employee_id
-GROUP BY department;
+GROUP BY e.department_id;
+
 /*
 Justification: Compares the average productivity scores across different departments.
 Purpose: Highlights performance disparities among various departments.
@@ -83,10 +85,10 @@ Findings: Indicates the total days of attendance for each employee.
 
 
 --Productivity Trends Over Time:
-SELECT EXTRACT(MONTH FROM date) AS month, AVG(productivity_score) AS avg_productivity
+SELECT EXTRACT(MONTH FROM performance_date) AS month, AVG(productivity_score) AS avg_productivity
 FROM performance_metrics
-GROUP BY EXTRACT(MONTH FROM date)
-ORDER BY EXTRACT(MONTH FROM date);
+GROUP BY EXTRACT(MONTH FROM performance_date)
+ORDER BY EXTRACT(MONTH FROM performance_date);
 /*
 Justification: Calculates the average productivity score per month to analyze trends over time.
 Purpose: Identifies monthly variations in productivity levels.
@@ -95,9 +97,10 @@ Findings: Indicates the average productivity score achieved each month.
 
 
 --Performance Review Scores Analysis:
-SELECT employee_id, AVG(review_score) AS avg_review_score
+SELECT employee_id, ROUND(AVG(review_score),2) AS avg_review_score
 FROM performance_reviews
-GROUP BY employee_id;
+GROUP BY employee_id
+ORDER BY 1;
 /*
 Justification: Computes the average performance review score for each employee.
 Purpose: Evaluates the overall performance based on review scores.
@@ -106,9 +109,11 @@ Findings: Displays the average review score for each employee.
 
 
 --Employee Engagement Analysis:
-SELECT employee_id, AVG(employee_engagement_score) AS avg_engagement_score
+SELECT employee_id, ROUND(AVG(employee_engagement_score),2) AS avg_engagement_score
 FROM employee_engagement
-GROUP BY employee_id;
+GROUP BY employee_id
+ORDER BY 1;
+
 /*
 Justification: Calculates the average engagement score for each employee.
 Purpose: Assesses the level of employee engagement within the organization.
@@ -153,9 +158,12 @@ Findings: Presents employee details along with their productivity and review sco
 
 
 --Employee Performance Over Time with Window Function:
-SELECT employee_id, EXTRACT(YEAR FROM performance_date) AS year, 
-       AVG(productivity_score) OVER (PARTITION BY employee_id ORDER BY performance_date) AS avg_prod_score
-FROM performance_metrics;
+SELECT DISTINCT
+    employee_id, 
+    EXTRACT(YEAR FROM performance_date) AS year, 
+    AVG(productivity_score) OVER (PARTITION BY employee_id, EXTRACT(YEAR FROM performance_date)) AS avg_prod_score
+FROM performance_metrics
+ORDER BY 1, 2;
 
 /*
 Justification: Uses a window function to calculate the average productivity score over time for each employee.
@@ -172,7 +180,7 @@ WITH monthly_engagement AS (
     GROUP BY employee_id, EXTRACT(MONTH FROM engagement_date)
 )
 SELECT employee_id, month, avg_engagement,
-       RANK() OVER (PARTITION BY employee_id ORDER BY avg_engagement DESC) AS engagement_rank
+       DENSE_RANK() OVER (PARTITION BY employee_id ORDER BY avg_engagement DESC) AS engagement_rank
 FROM monthly_engagement;
 
 /*
@@ -186,7 +194,8 @@ Findings: Shows the monthly average engagement scores and ranks employees accord
 SELECT t.training_id, t.training_name, COUNT(*) AS employees_attended
 FROM trainings t
 LEFT JOIN training_records tr ON t.training_id = tr.training_id
-GROUP BY t.training_id, t.training_name;
+GROUP BY t.training_id, t.training_name
+ORDER BY 1;
 
 /*
 Justification: Uses a LEFT JOIN to list all training sessions and the count of employees attending each.
@@ -200,7 +209,8 @@ Findings: Displays the count of employees attending each training session along 
 SELECT e.department_id, AVG(pr.review_score) AS avg_review_score
 FROM employees e
 JOIN performance_reviews pr ON e.employee_id = pr.employee_id
-GROUP BY e.department_id;
+GROUP BY e.department_id
+ORDER BY 1;
 
 /*
 Justification: Joins employee and performance review tables to calculate average review scores per department.
@@ -210,10 +220,11 @@ Findings: Shows the average review score for each department.
 
 
 --Top Performing Departments Using Subquery:
-SELECT department_id, AVG(productivity_score) AS avg_prod_score
-FROM performance_metrics
-GROUP BY department_id
-HAVING AVG(productivity_score) > (
+SELECT e.department_id, AVG(pm.productivity_score) AS avg_prod_score
+FROM employees e
+JOIN performance_metrics pm ON e.employee_id = pm.employee_id
+GROUP BY e.department_id
+HAVING AVG(pm.productivity_score) > (
     SELECT AVG(productivity_score) FROM performance_metrics
 );
 
@@ -225,8 +236,15 @@ Findings: Lists departments with above-average productivity scores.
 
 
 --Performance Improvement with Lag Function:
-SELECT employee_id, productivity_score, 
-       LAG(productivity_score) OVER (PARTITION BY employee_id ORDER BY performance_date) AS prev_prod_score
+SELECT 
+    employee_id,performance_date, 
+    productivity_score, 
+    LAG(productivity_score) OVER (PARTITION BY employee_id ORDER BY performance_date) AS prev_prod_score,
+    CASE 
+        WHEN productivity_score - LAG(productivity_score) OVER (PARTITION BY employee_id ORDER BY performance_date) > 0 THEN 'up'
+        WHEN productivity_score - LAG(productivity_score) OVER (PARTITION BY employee_id ORDER BY performance_date) < 0 THEN 'down'
+        ELSE 'constant'
+    END AS remark
 FROM performance_metrics;
 
 /*
@@ -264,7 +282,8 @@ Findings: Shows the ranking of employees within their departments based on produ
 SELECT employee_id, EXTRACT(YEAR FROM engagement_date) AS year, 
        MAX(employee_engagement_score) - MIN(employee_engagement_score) AS engagement_variation
 FROM employee_engagement
-GROUP BY employee_id, year;
+GROUP BY employee_id, year
+ORDER BY 1, 2;
 
 /*
 Justification: Determines the variation in employee engagement scores within each year.
