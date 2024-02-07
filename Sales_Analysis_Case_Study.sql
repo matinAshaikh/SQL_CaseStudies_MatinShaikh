@@ -36,11 +36,12 @@ Sample SQL Queries (Tasks):*/
 SELECT SUM(sale_amount) AS total_sales_amount FROM sales;
 
 -- 2. Top Selling Products
-SELECT product_id, SUM(quantity_sold) AS total_quantity_sold
+SELECT product_id, SUM(sale_amount) AS total_sale_amount
 FROM sales
 GROUP BY product_id
-ORDER BY total_quantity_sold DESC
+ORDER BY total_sale_amount DESC
 LIMIT 5;
+
 
 -- 3. Customer Segmentation
 SELECT customer_segment, SUM(sale_amount) AS total_sales_amount
