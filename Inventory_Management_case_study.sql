@@ -35,7 +35,8 @@ Inventory Status Query:*/
 
 SELECT product_id, SUM(inventory_count) AS total_inventory
 FROM inventory
-GROUP BY product_id;
+GROUP BY product_id
+ORDER BY 1;
 
 /*Justification: This query calculates the total inventory count for each product.
 Purpose: Provides an overview of current inventory levels for all products.
@@ -54,16 +55,17 @@ WITH sales_history AS (
     GROUP BY product_id, EXTRACT(MONTH FROM sales_date)
 )
 SELECT product_id, 
-    AVG(total_sold) * 1.2 AS reorder_point
+    ROUND(AVG(total_sold) * 1.2 ,2)AS reorder_point
 FROM sales_history
-GROUP BY product_id;
+GROUP BY product_id
+ORDER BY 1;
 
 /*Justification: Calculates the reorder point for each product based on historical sales data.
 Purpose: Determines the level at which new orders should be placed to prevent stockouts.
 Findings: Provides the average sales quantity to set a safety stock level.*/
 
-
-
+--Note: Multiplying the total sold by 1.2 adds a safety margin to the reorder point calculation, ensuring sufficient inventory levels to meet demand fluctuations and mitigate the risk of stockouts.
+--      The specific value of the multiplier (1.2 in this case) can vary depending on factors such as industry norms, historical sales patterns, and risk tolerance levels. It's often determined based on historical data analysis, expert judgment, and business goals.
 
 
 --Low-Stock Alerts:
@@ -76,7 +78,17 @@ WHERE inventory_count < 20;
 Purpose: Helps in generating alerts for items needing immediate attention to avoid stockouts.
 Findings: Lists products with low stock levels.*/
 
+/*Note : The value 20 appears to be used as a threshold or parameter to identify products with low stock levels. This threshold could be determined based on various factors such as:
 
+Business Policy: The threshold of 20 might be defined as the minimum acceptable stock level according to the company's inventory management policies.
+
+Reorder Point: It could represent a point at which inventory for a particular product is considered low enough to trigger a reorder or replenishment action.
+
+Historical Analysis: The value could be determined based on historical sales data, lead times, and demand variability to ensure that there's enough buffer stock to cover fluctuations in demand.
+
+Risk Management: It may also be set conservatively to reduce the risk of stockouts, ensuring that there's a safety buffer to handle unexpected increases in demand or delays in replenishment.
+
+Overall, the specific value of 20 used in this query represents a decision made by the business regarding what constitutes a low stock level for their inventory items. Adjustments to this threshold may be necessary based on changing market conditions, seasonal variations, or other factors affecting demand and supply.*/
 
 
 
@@ -86,7 +98,8 @@ SELECT product_id,
     EXTRACT(MONTH FROM sales_date) AS sale_month,
     SUM(quantity_sold) AS total_sold
 FROM sales
-GROUP BY product_id, EXTRACT(MONTH FROM sales_date);
+GROUP BY product_id, EXTRACT(MONTH FROM sales_date)
+ORDER BY 1;
 
 /*Justification: Analyzes sales trends to identify products with fluctuating demand.
 Purpose: Helps in forecasting and better inventory planning.
@@ -113,11 +126,12 @@ Findings: Displays the average inventory count for each product.*/
 
 --Inventory Turnover Rate Calculation:
 
-SELECT product_id, 
-    SUM(quantity_sold) / AVG(inventory_count) AS inventory_turnover
-FROM sales
-JOIN inventory ON sales.product_id = inventory.product_id
-GROUP BY product_id;
+SELECT s.product_id, 
+    ROUND(SUM(quantity_sold) / AVG(i.inventory_count),2) AS inventory_turnover
+FROM sales s
+JOIN inventory i ON s.product_id = i.product_id
+GROUP BY s.product_id
+ORDER BY 1;
 
 /*Justification: Calculates the inventory turnover rate based on sales and inventory data.
 Purpose: Measures how quickly inventory is sold and replaced over a period.
@@ -141,6 +155,11 @@ WHERE total_inventory < 50;
 /*Justification: Calculates the total inventory count for each product using a Common Table Expression (CTE).
 Purpose: Aids in identifying products with very low inventory levels.
 Findings: Lists products with inventory counts below 50 units.*/
+
+/* Note: the specific value of 50 used in this query represents a decision made by the business regarding what constitutes a low total inventory level for their products. Adjustments to this threshold may be necessary based on changing market conditions, seasonal variations, or other factors affecting demand and supply.
+*/
+
+
 
 
 
