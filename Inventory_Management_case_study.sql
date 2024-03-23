@@ -39,7 +39,7 @@ GROUP BY product_id
 ORDER BY 1;
 
 /*Justification: This query calculates the total inventory count for each product.
-Purpose: Provides an overview of current inventory levels for all products.
+Purpose: Offers a snapshot of available stock, aiding in identifying potential shortages or excesses.
 Findings: Reveals the current stock count for each product in the inventory.*/
 
 
@@ -94,12 +94,12 @@ Overall, the specific value of 20 used in this query represents a decision made 
 
 --Product Demand Analysis:
 
-SELECT product_id, 
-    EXTRACT(MONTH FROM sales_date) AS sale_month,
-    SUM(quantity_sold) AS total_sold
+SELECT product_id,
+       EXTRACT(MONTH FROM sales_date) AS sale_month,
+       AVG(quantity_sold) AS avg_monthly_sales
 FROM sales
 GROUP BY product_id, EXTRACT(MONTH FROM sales_date)
-ORDER BY 1;
+ORDER BY product_id, sale_month;
 
 /*Justification: Analyzes sales trends to identify products with fluctuating demand.
 Purpose: Helps in forecasting and better inventory planning.
